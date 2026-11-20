@@ -15,6 +15,7 @@ def evaluate(rows,context):
     output=[]
     for row in rows:
         expected=Decimal(str(row.get("expected","0")));reported=Decimal(str(row.get("reported","0")))
-        output.append({**row,"difference":str(expected-reported),"status":"通过" if expected==reported else "差异"})
-    m.update(expected_total=str(sum((Decimal(str(r.get("expected","0"))) for r in rows),Decimal(0))),reported_total=str(sum((Decimal(str(r.get("reported","0"))) for r in rows),Decimal(0))),differences=sum(r["status"]=="差异" for r in output))
+        status="证据不足" if row.get("risk")=="证据不足" else "通过" if expected==reported else "差异"
+        output.append({**row,"difference":str(expected-reported),"status":status})
+    m.update(expected_total=str(sum((Decimal(str(r.get("expected","0"))) for r in rows),Decimal(0))),reported_total=str(sum((Decimal(str(r.get("reported","0"))) for r in rows),Decimal(0))),differences=sum(r["status"]=="差异" for r in output),insufficient=sum(r["status"]=="证据不足" for r in output))
     return {"rows":output,"quarantine":[],"metrics":m}

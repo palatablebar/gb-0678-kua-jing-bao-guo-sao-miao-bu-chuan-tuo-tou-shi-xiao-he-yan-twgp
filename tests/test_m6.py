@@ -16,3 +16,10 @@ def test_overlap_is_rejected():
     with pytest.raises(DomainError):evaluate([{"_line":1}],{"quarantine":[{"_line":1}]})
 def test_real_sample_rejected_have_reason(result):
     assert all(r["reason"] and r["detail"] for r in result["stages"][5]["cumulative_quarantine"])
+def test_insufficient_evidence_not_compensated():
+    "证据不足票沿用唯一结论：不自动计赔、不计入赔付合计"
+    from app.pipeline import calculate,load_sample
+    stage=calculate(load_sample("partial.csv"))["stages"][5]
+    row=next(r for r in stage["rows"] if r["parcel"]=="P400")
+    assert row["status"]=="证据不足" and row["expected"]=="0.00"
+    assert stage["metrics"]["insufficient"]==1 and stage["metrics"]["expected_total"]=="8.00"

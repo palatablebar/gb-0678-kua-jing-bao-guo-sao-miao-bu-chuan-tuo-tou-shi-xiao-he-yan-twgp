@@ -32,6 +32,14 @@
 | TRAP-12 | DST自然日 | 固定24小时 | 按当地午夜切片 | `app/modules/m5_timeliness/rules.py` | `tests/test_m5.py::test_dst_actual_elapsed_hours` |
 | TRAP-13 | 迟到妥投补传 | 按上传时间赔付 | 发生时间重建 | `app/modules/m4_paths/rules.py` | `tests/test_m4.py::test_late_upload_event_time_decides` |
 | TRAP-23 | 假日端点 | 误算全天 | 当地日半开切段 | `app/modules/m5_timeliness/rules.py` | `tests/test_m5.py::test_holiday_full_day_stops` |
+| TRAP-31 | 缺口当事实 | 未出现节点参与计时 | 缺口只进gaps与参考估算，证据层只列已发生扫描 | `app/modules/m5_timeliness/rules.py` | `tests/test_m5.py::test_gap_never_treated_as_occurred` |
+| TRAP-32 | 参考随历史漂移 | 重跑同一补传结论变化 | 参考只用本批统计或显式参数，均进入批次摘要 | `app/modules/m5_timeliness/rules.py` | `tests/test_m5.py::test_parameter_reference_is_deterministic` |
+| TRAP-33 | 矛盾证据照赔 | 被隔离扫描的票仍自动计赔 | 证据不足票不计赔、对账单列 | `app/modules/m6_compensation/rules.py` | `tests/test_m6.py::test_insufficient_evidence_not_compensated` |
+| TRAP-34 | 重跑覆盖结论 | 同源重跑替换已复核批次 | 批次冲突不替换，保留旧版与复核状态 | `app/store.py` | `tests/test_e2e.py::test_rerun_never_overwrites_reviewed` |
+
+## 风险裁决
+
+唯一结论字段risk由时效计算产出，赔付对账与证据导出直接沿用，不各自重算。已妥投票按事实判定达标或超时，被隔离扫描不改写已重建的妥投事实。未妥投票且证据链干净时，以已发生工作计时加同目的地同节点参考剩余对照承诺时限，分低、中、高三档；参考取本批已妥投票的分段工作小时中位数，或由parameters.reference显式传入，两种来源都写入批次摘要，同一补传重跑结论不变。未妥投票若存在任何被隔离扫描，结论一律为证据不足：不出具等级、赔付预估记零、对账状态单列。缺口节点只出现在gaps与参考估算中，永不作为已发生事实。
 
 ## 对账规则
 

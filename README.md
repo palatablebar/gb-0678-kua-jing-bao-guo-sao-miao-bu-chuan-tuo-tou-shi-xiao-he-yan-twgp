@@ -23,7 +23,7 @@ docker compose exec -T app pytest -q
 
 ## 核心规则
 
-以事件发生时刻重建路径，补传不改变既有妥投时间；承诺时钟按目的地节假日停表。
+以事件发生时刻重建路径，补传不改变既有妥投时间；承诺时钟按目的地节假日停表。未妥投部分扫描票的缺口节点只作参考估算进入唯一风险结论，不算已发生；同目的地同节点参考来自本批已妥投票或显式参数，均入批次摘要。补传带来矛盾扫描时该票降级为证据不足，不自动计赔；同一补传重跑不新增结论。
 
 ## 演示
 
@@ -34,7 +34,7 @@ docker compose exec -T app pytest -q
 
 ## 输入与输出
 
-输入列见 `docs/DATA-DICTIONARY.md`。项目包含dirty.csv、clean.csv、legacy.csv，统一走实际导入路径。上传限制4MB，拒绝不带时区的时间。业务键按字符串保留，Decimal参与计算，空值不会当零。
+输入列见 `docs/DATA-DICTIONARY.md`。项目包含dirty.csv、clean.csv、legacy.csv、partial.csv，统一走实际导入路径。上传限制4MB，拒绝不带时区的时间。业务键按字符串保留，Decimal参与计算，空值不会当零。
 
 `POST /api/runs` 接收sample或csv；`GET /api/runs`返回历史批次；`POST /api/runs/<id>/review`需要version与decision；`GET /api/runs/<id>/archive`返回唯一证据导出。
 
